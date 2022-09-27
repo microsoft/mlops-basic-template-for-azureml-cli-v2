@@ -44,4 +44,4 @@ stages:
             amlJobExecutionScript: ./mlops/nyc-taxi/pipeline.yml
             amlJobSetCommand: "--set experiment_name=$(EXPERIMENT_NAME) \
                                 settings.default_compute=azureml:$(CLUSTER_NAME) \
-                                display_name=$(DISPLAY_NAME) --query name -o tsv)"
+                                display_name=$(DISPLAY_NAME)"

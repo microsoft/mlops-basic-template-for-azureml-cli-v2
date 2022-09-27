@@ -16,7 +16,7 @@ steps:
       AZUREML_CURRENT_CLOUD="AzureChinaCloud"
       AZURE_ML_CLI_PRIVATE_FEATURES_ENABLED="true"
       run_id=$(az ml job create -f ${{ parameters.amlJobExecutionScript }} \
-        ${{ parameters.amlJobSetCommand }}
+        ${{ parameters.amlJobSetCommand }} --query name -o tsv)
       echo "RunID is $run_id"
       if [[ -z "$run_id" ]]
       then

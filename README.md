@@ -1,1 +1,2 @@
-# mlops-basic-template-for-azureml-cli-v2
+# MLOps Basic Template for Azure ML CLI v2
+
