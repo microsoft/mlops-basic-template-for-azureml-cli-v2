@@ -1,0 +1,9 @@
+steps:
+- task: AzureCLI@2
+  displayName: Connect to AML Workspace using CLI v2
+  inputs:
+    azureSubscription: $(AZURE_RM_SVC_CONNECTION)
+    scriptType: bash
+    scriptLocation: inlineScript
+    inlineScript: |
+      az configure --defaults group=$(RESOURCE_GROUP) workspace=$(WORKSPACE_NAME)

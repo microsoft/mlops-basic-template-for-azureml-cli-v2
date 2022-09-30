@@ -1,0 +1,47 @@
+trigger: none
+pr:
+  branches:
+   include:
+     - development
+  paths:
+    include:
+      - devops/pipeline/templates/*
+      - devops/pipeline/requirements/*
+      - devops/pipeline/pr_to_dev_pipeline.yml
+      - src/nyc_src/*
+      - mlops/nyc-taxi/*
+      - src/shared/*
+
+pool:
+  vmImage: ubuntu-18.04
+
+variables:
+- group: MLOps-DEV-VG
+
+stages:
+    - stage: build
+      displayName: build_validation
+      jobs:
+        - template: build_validation_pipeline.yml
+
+    - stage: execute
+      displayName: execute_job
+      variables:
+      - template: templates/experiment_variables.yml
+      - name: EXPERIMENT_TYPE
+        value: nyc
+      jobs:
+      - job: Execute_Job_Pipeline
+        steps:
+        - template: templates/configure_azureml_agent.yml
+        - template: templates/connect_to_workspace.yml
+        - template: templates/create_compute.yml
+          parameters: 
+            cluster_name: $(CLUSTER_NAME)
+            size: $(CLUSTER_SIZE)
+        - template: templates/execute_and_wait_job.yml
+          parameters:
+            amlJobExecutionScript: ./mlops/nyc-taxi/pipeline.yml
+            amlJobSetCommand: "--set experiment_name=$(EXPERIMENT_NAME) \
+                                settings.default_compute=azureml:$(CLUSTER_NAME) \
+                                display_name=$(DISPLAY_NAME)"

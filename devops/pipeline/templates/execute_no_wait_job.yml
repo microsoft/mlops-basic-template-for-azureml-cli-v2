@@ -1,0 +1,26 @@
+parameters:
+  - name: amlJobExecutionScript
+    type: string
+  - name: amlJobSetCommand
+    type: string
+
+steps:
+- task: AzureCLI@2
+  displayName: Run Azure ML pipeline
+  inputs: 
+    azureSubscription: $(AZURE_RM_SVC_CONNECTION)
+    scriptType: bash
+    workingDirectory: $(System.DefaultWorkingDirectory)
+    scriptLocation: inlineScript
+    inlineScript: |
+      AZUREML_CURRENT_CLOUD="AzureChinaCloud"
+      AZURE_ML_CLI_PRIVATE_FEATURES_ENABLED="true"
+      run_id=$(az ml job create -f ${{ parameters.amlJobExecutionScript }} \
+        ${{ parameters.amlJobSetCommand }} --query name -o tsv)
+      echo "RunID is $run_id"
+      if [[ -z "$run_id" ]]
+      then
+        echo "Job creation failed"
+        exit 3
+      fi
+      az ml job show -n $run_id --web

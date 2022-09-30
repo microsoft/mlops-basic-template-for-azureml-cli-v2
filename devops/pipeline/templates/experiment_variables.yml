@@ -1,0 +1,7 @@
+variables:
+- name: EXPERIMENT_NAME
+  value: $(EXPERIMENT_BASE_NAME)_$(EXPERIMENT_TYPE)_$(Build.SourceBranchName)
+- name: DISPLAY_NAME
+  value: $(DISPLAY_BASE_NAME)_$(EXPERIMENT_TYPE)_$(Build.BuildID)
+- name: MODEL_NAME
+  value: $(MODEL_BASE_NAME)_$(EXPERIMENT_TYPE)_$(Build.SourceBranchName)
