@@ -50,4 +50,9 @@ stages:
             amlJobExecutionScript: ./mlops/nyc-taxi/pipeline.yml
             amlJobSetCommand: "--set experiment_name=$(EXPERIMENT_NAME) \
                                 settings.default_compute=azureml:$(CLUSTER_NAME) \
+                                jobs.prep_job.environment=azureml:$(ENVIRONMENT_NAME)@latest \
+                                jobs.transform_job.environment=azureml:$(ENVIRONMENT_NAME)@latest \
+                                jobs.train_job.environment=azureml:$(ENVIRONMENT_NAME)@latest \
+                                jobs.predict_job.environment=azureml:$(ENVIRONMENT_NAME)@latest \
+                                jobs.score_job.environment=azureml:$(ENVIRONMENT_NAME)@latest \                          
                                 display_name=$(DISPLAY_NAME)"
