@@ -1,0 +1,11 @@
+name: prs-env
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - pip
+  - pip:
+    - pandas
+    - scikit-learn
+    - mlflow
+    - azureml-mlflow
