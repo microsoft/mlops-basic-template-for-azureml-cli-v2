@@ -30,6 +30,8 @@ stages:
       - template: templates/experiment_variables.yml
       - name: EXPERIMENT_TYPE
         value: nyc
+      - name: ENVIRONMENT_NAME
+        value: nyc_dev_env
       jobs:
       - job: Execute_Job_Pipeline
         steps:
@@ -39,9 +41,18 @@ stages:
           parameters: 
             cluster_name: $(CLUSTER_NAME)
             size: $(CLUSTER_SIZE)
+        - template: templates/create_environment.yml
+          parameters: 
+            environment_name: $(ENVIRONMENT_NAME)
+            environment_file: ./mlops/nyc-taxi/environment.yml
         - template: templates/execute_no_wait_job.yml
           parameters:
             amlJobExecutionScript: ./mlops/nyc-taxi/pipeline.yml
             amlJobSetCommand: "--set experiment_name=$(EXPERIMENT_NAME) \
                                 settings.default_compute=azureml:$(CLUSTER_NAME) \
+                                jobs.prep_job.environment=azureml:$(ENVIRONMENT_NAME)@latest \
+                                jobs.transform_job.environment=azureml:$(ENVIRONMENT_NAME)@latest \
+                                jobs.train_job.environment=azureml:$(ENVIRONMENT_NAME)@latest \
+                                jobs.predict_job.environment=azureml:$(ENVIRONMENT_NAME)@latest \
+                                jobs.score_job.environment=azureml:$(ENVIRONMENT_NAME)@latest \                          
                                 display_name=$(DISPLAY_NAME)"
