@@ -6,6 +6,7 @@ parameters:
 
 steps:
 - task: AzureCLI@2
+  name: submit_aml_job_task
   displayName: Run Azure ML pipeline
   inputs: 
     azureSubscription: $(AZURE_RM_SVC_CONNECTION)
@@ -24,3 +25,10 @@ steps:
         exit 3
       fi
       az ml job show -n $run_id --web
+
+      # Remove quotes around run name
+      run_name=$(sed -e 's/^"//' -e 's/"$//' <<<"$run_id")
+      echo $run_name
+
+      # Set output variable for next task
+      echo "##vso[task.setvariable variable=RUN_NAME;isOutput=true;]$run_name"

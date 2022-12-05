@@ -33,7 +33,7 @@ stages:
       - name: ENVIRONMENT_NAME
         value: nyc_dev_env
       jobs:
-      - job: Execute_Job_Pipeline
+      - job: Submit_Job_Pipeline
         steps:
         - template: templates/configure_azureml_agent.yml
         - template: templates/connect_to_workspace.yml
@@ -56,3 +56,14 @@ stages:
                                 jobs.predict_job.environment=azureml:$(ENVIRONMENT_NAME)@latest \
                                 jobs.score_job.environment=azureml:$(ENVIRONMENT_NAME)@latest \                          
                                 display_name=$(DISPLAY_NAME)"
+      - job: WaitForCallback
+        pool: server
+        timeoutInMinutes: 0
+        dependsOn: Submit_Job_Pipeline
+        variables: 
+          run_name_from_submit_job: $[ dependencies.Submit_Job_Pipeline.outputs['submit_aml_job_task.RUN_NAME'] ] 
+        steps:
+        - task: AMLJobWaitTask@0
+          inputs:
+            azureSubscription: 'azuremlconnection'
+            runName: $(run_name_from_submit_job)
