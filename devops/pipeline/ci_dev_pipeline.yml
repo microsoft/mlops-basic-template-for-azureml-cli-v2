@@ -56,6 +56,12 @@ stages:
                                 jobs.predict_job.environment=azureml:$(ENVIRONMENT_NAME)@latest \
                                 jobs.score_job.environment=azureml:$(ENVIRONMENT_NAME)@latest \                          
                                 display_name=$(DISPLAY_NAME)"
+
+      # Async job wait for results
+      # This is a early preview feature and it can be changed prior GA
+      # https://github.com/Azure/azure-mlops-automation for details or get access
+
+      # Option 1: Using the extension
       - job: WaitForCallback
         pool: server
         timeoutInMinutes: 0
@@ -67,3 +73,6 @@ stages:
           inputs:
             azureSubscription: 'azuremlconnection'
             runName: $(run_name_from_submit_job)
+
+      # Option 2: No extension
+
