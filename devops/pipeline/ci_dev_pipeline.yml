@@ -66,5 +66,4 @@ stages:
         - task: AMLJobWaitTask@0
           inputs:
             azureSubscription: 'azuremlconnection'
-            # runName: $(run_name_from_submit_job)
-            runName: modest_clock_8mq19njwvp
+            runName: $(run_name_from_submit_job)
