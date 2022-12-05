@@ -1,0 +1,55 @@
+jobs:
+- job: AzureML_Prepare_Pipeline_Run
+  displayName: Prepare to Wait for Azure ML job
+  steps:
+  - task: AzureCLI@2
+    name: retrieveAzureServiceConnection
+    displayName: Retrieve Azure Service Connection Details
+    inputs:
+      azureSubscription: $(AZURE_RM_SVC_CONNECTION)
+      scriptLocation: inlineScript
+      scriptType: bash
+      inlineScript: |
+        export subscriptionId=$(az account show --query id -o tsv)
+        echo "##vso[task.setvariable variable=SUBSCRIPTION_ID;isOutput=true]$subscriptionId"
+        echo "##vso[task.setvariable variable=RESOURCE_GROUP;isOutput=true]$RESOURCE_GROUP"
+        echo "##vso[task.setvariable variable=WORKSPACE_NAME;isOutput=true]$WORKSPACE_NAME"
+        echo "##vso[task.setvariable variable=AML_REST_CONNECTION;isOutput=true]$AML_REST_CONNECTION"
+      addSpnToEnvironment: true
+  - task: AzureCLI@2
+    displayName: Get Aad Token
+    name: getAadToken
+    inputs:
+      azureSubscription: $(AZURE_RM_SVC_CONNECTION)
+      addSpnToEnvironment: true
+      scriptLocation: inlineScript
+      scriptType: bash
+      inlineScript: |
+        export aadToken=$(az account get-access-token --resource=https://management.azure.com --query accessToken -o tsv)
+        echo "##vso[task.setvariable variable=AAD_TOKEN;isOutput=true;issecret=true]$aadToken"
+
+- job: AzureML_Wait_Pipeline
+  displayName: Waiting for Azure ML Pipeline
+  dependsOn: 
+  - AzureML_Prepare_Pipeline_Run
+  - Submit_Job_Pipeline
+  timeoutInMinutes: 0
+  pool: server
+  variables:
+    RUN_NAME: $[ dependencies.Submit_Job_Pipeline.outputs['submit_aml_job_task.RUN_NAME'] ]
+    SUBSCRIPTION_ID: $[ dependencies.AzureML_Prepare_Pipeline_Run.outputs['retrieveAzureServiceConnection.SUBSCRIPTION_ID'] ]
+    RESOURCE_GROUP: $[ dependencies.AzureML_Prepare_Pipeline_Run.outputs['retrieveAzureServiceConnection.RESOURCE_GROUP'] ]
+    WORKSPACE_NAME: $[ dependencies.AzureML_Prepare_Pipeline_Run.outputs['retrieveAzureServiceConnection.WORKSPACE_NAME'] ]
+    AML_REST_CONNECTION: $[ dependencies.AzureML_Prepare_Pipeline_Run.outputs['retrieveAzureServiceConnection.AML_REST_CONNECTION'] ]
+    AAD_TOKEN: $[ dependencies.AzureML_Prepare_Pipeline_Run.outputs['getAadToken.AAD_TOKEN'] ]
+  steps:
+  - task: InvokeRESTAPI@1
+    displayName: Waiting for Job Results
+    inputs:
+      connectionType: connectedServiceName
+      serviceConnection: $(AML_REST_CONNECTION)
+      method: POST
+      body: "{ \"EventInfo\": { \"Id\": \"$(RUN_NAME)\", \"EventType\": \"RunTerminated\" }, \"CallbackService\": \"AzureDevOps\", \"ServiceDetails\": { \"JobId\": \"$(system.jobId)\", \"HubName\": \"$(system.HostType)\", \"TaskInstanceId\": \"$(system.TaskInstanceId)\", \"PlanId\": \"$(system.planId)\", \"ProjectId\": \"$(system.teamProjectId)\", \"PlanUri\": \"$(system.CollectionUri)\", \"AuthToken\": \"$(system.AccessToken)\", \"TaskInstanceName\": \"InvokeRESTAPI\", \"TimelineId\": \"$(system.TimelineId)\" } }"
+      headers: "{\n\"Content-Type\":\"application/json\", \n\"Authorization\":\"Bearer $(AAD_TOKEN)\" \n}"
+      urlSuffix: "subscriptions/$(SUBSCRIPTION_ID)/resourceGroups/$(RESOURCE_GROUP)/providers/Microsoft.MachineLearningServices/workspaces/$(WORKSPACE_NAME)/webhooks/CreateWebhook"
+      waitForCompletion: true
