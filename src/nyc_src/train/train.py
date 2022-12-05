@@ -12,7 +12,7 @@ import mlflow
 
 
 def main(training_data, test_data, model_output):
-    print("hello training world...")
+    print("Hello training world...")
 
     lines = [
         f"Training data path: {training_data}",
