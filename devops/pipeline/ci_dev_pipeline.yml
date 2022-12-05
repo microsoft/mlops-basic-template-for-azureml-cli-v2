@@ -77,7 +77,7 @@ stages:
 
       # Option 2: No extension
       - job: AzureML_Prepare_Pipeline_Run
-        displayName: Wait for Azure ML job
+        displayName: Prepare to Wait for Azure ML job
         steps:
         - task: AzureCLI@2
           name: retrieveAzureServiceConnection
@@ -121,7 +121,7 @@ stages:
           AAD_TOKEN: $[ dependencies.AzureML_Prepare_Pipeline_Run.outputs['getAadToken.AAD_TOKEN'] ]
         steps:
         - task: InvokeRESTAPI@1
-          displayName: Wait for job results
+          displayName: Waiting for Job Results
           inputs:
             connectionType: connectedServiceName
             serviceConnection: $(AML_REST_CONNECTION)
