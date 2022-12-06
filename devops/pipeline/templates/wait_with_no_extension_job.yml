@@ -48,7 +48,7 @@ jobs:
     inputs:
       connectionType: connectedServiceName
       serviceConnection: $(AML_REST_CONNECTION)
-      method: POST
+      method: PUT
       body: "{ \"EventInfo\": { \"Id\": \"$(RUN_NAME)\", \"EventType\": \"RunTerminated\" }, \"CallbackService\": \"AzureDevOps\", \"ServiceDetails\": { \"JobId\": \"$(system.jobId)\", \"HubName\": \"$(system.HostType)\", \"TaskInstanceId\": \"$(system.TaskInstanceId)\", \"PlanId\": \"$(system.planId)\", \"ProjectId\": \"$(system.teamProjectId)\", \"PlanUri\": \"$(system.CollectionUri)\", \"AuthToken\": \"$(system.AccessToken)\", \"TaskInstanceName\": \"InvokeRESTAPI\", \"TimelineId\": \"$(system.TimelineId)\" } }"
       headers: "{\n\"Content-Type\":\"application/json\", \n\"Authorization\":\"Bearer $(AAD_TOKEN)\" \n}"
       urlSuffix: "subscriptions/$(SUBSCRIPTION_ID)/resourceGroups/$(RESOURCE_GROUP)/providers/Microsoft.MachineLearningServices/workspaces/$(WORKSPACE_NAME)/webhooks/CreateWebhook"

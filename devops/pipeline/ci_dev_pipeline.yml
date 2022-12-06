@@ -62,7 +62,7 @@ stages:
       # https://github.com/Azure/azure-mlops-automation for details or get access
 
       # Option 1: Using the extension
-      - template: templates/wait_with_extension_job.yml
+      # - template: templates/wait_with_extension_job.yml
 
       # Option 2: No extension
-      # - template: templates/wait_with_no_extension_job.yml
+      - template: templates/wait_with_no_extension_job.yml
