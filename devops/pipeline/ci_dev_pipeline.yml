@@ -33,7 +33,7 @@ stages:
       - name: ENVIRONMENT_NAME
         value: nyc_dev_env
       jobs:
-      - job: Execute_Job_Pipeline
+      - job: Submit_Job_Pipeline
         steps:
         - template: templates/configure_azureml_agent.yml
         - template: templates/connect_to_workspace.yml
@@ -56,3 +56,13 @@ stages:
                                 jobs.predict_job.environment=azureml:$(ENVIRONMENT_NAME)@latest \
                                 jobs.score_job.environment=azureml:$(ENVIRONMENT_NAME)@latest \                          
                                 display_name=$(DISPLAY_NAME)"
+
+      # Async job wait for results
+      # This is a early preview feature and it can be changed prior GA
+      # https://github.com/Azure/azure-mlops-automation for details or get access
+
+      # Option 1: Using the extension
+      # - template: templates/wait_with_extension_job.yml
+
+      # Option 2: No extension
+      - template: templates/wait_with_no_extension_job.yml
