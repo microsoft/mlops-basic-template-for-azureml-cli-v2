@@ -9,5 +9,5 @@ jobs:
   - task: AMLJobWaitTask@0
     inputs:
       # a service connection with Azure ML scope (see the doc from the link above)
-      azureSubscription: 'azuremlconnection'
+      azureSubscription: $(ML_SCOPE_SVC_CONNECTION)
       runName: $(run_name_from_submit_job)

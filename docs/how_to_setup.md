@@ -29,4 +29,12 @@ More details about how to create a basic Azure Pipeline can be found [here](http
 
 More details about how to create a policy can be found [here](https://learn.microsoft.com/en-us/azure/devops/repos/git/branch-policies?view=azure-devops&tabs=browser).
 
+**Step 6. (Optional)** It's a common practice to execute training job on the full dataset once PR has been merged into the development branch. At the same time, the training process can take much time (many hours or even days) and Azure DevOps agent will not be able to let you know about the status due to timeout settings. So, it's very hard to implement a single CI Build that is waiting for a new model (training results) and execute other steps after that (model approval, model movement into qa environment, model deployment etc).
+
+Azure ML provides a solution that allows us to implement a *server* task in Azure DevOps Build and wait for the result of the pipeline training job with no Azure DevOps agent holding. Thanks to that it's possible to wait for results any amount of time and execute all other steps right after completion of the Azure ML training job. As for now, the feature is in active development, but you can [visit this link](https://github.com/Azure/azure-mlops-automation) to check the status and find how to get access. This new Azure ML feature can be included in your CI Build thanks to the extension that Azure ML team built or you can use RestAPITask for a direct REST call. In this template we implemented both options, and you can pick any.
+
+To activate option 1, you need to uncomment it in `ci_dev_pipeline.yml`, and you need to setup a new Azure Resource Manager service connection in AzureML scope and add its name into the variable group as **ML_SCOPE_SVC_CONNECTION**.
+
+To activate option 2, you need to uncomment it in `ci_dev_pipeline.yml`, and you need to setup a new **Generic** service connection with **Server URL** parameter in the following format `https://{azure ml workspace location}.experiments.azureml.net/webhook/v1.0/` and add its name into the variable group as **AML_REST_CONNECTION**.
+
 Now, you can create a PR and test the flow.
