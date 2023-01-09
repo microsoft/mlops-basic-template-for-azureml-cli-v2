@@ -38,3 +38,11 @@ To activate option 1, you need to uncomment it in `ci_dev_pipeline.yml`, and you
 To activate option 2, you need to uncomment it in `ci_dev_pipeline.yml`, and you need to setup a new **Generic** service connection with **Server URL** parameter in the following format `https://{azure ml workspace location}.experiments.azureml.net/webhook/v1.0/` and add its name into the variable group as **AML_REST_CONNECTION**.
 
 Now, you can create a PR and test the flow.
+
+**Step 7. (Optional)** The default Azure ML pipeline used in this repository is built using hard-coded jobs, but optionally you may wish to implement a [component](https://learn.microsoft.com/en-us/azure/machine-learning/concept-component) based pipeline. Components are self contained pieces of code that can be reused across multiple pipelines - which can be useful in customers who have many different pipelines that share common tasks.
+
+To review these components, explore the `mlops\nyc-taxi\components` folder, and the YAML within, which defines each component. In this use case, each component maps directly to one of the jobs in the default pipeline, and in the `mlops\nyc-taxi\pipeline_components.yml` pipeline, they are executed in the same order.
+
+If you want to test out the component based pipeline, simply comment out the reference to `mlops\nyc-taxi\pipeline.yml` in the `ci_dev_pipeline.yml` and `pr_to_def_pipeline.yml` and replace it with `mlops\nyc-taxi\pipeline_components.yml`, then re-run your Azure Pipelines.
+
+For more information about components, please see the official docs [here](https://learn.microsoft.com/en-us/azure/machine-learning/concept-component).

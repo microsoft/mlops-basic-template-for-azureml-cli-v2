@@ -47,7 +47,10 @@ stages:
             environment_file: ./mlops/nyc-taxi/environment.yml
         - template: templates/execute_no_wait_job.yml
           parameters:
+          # Option 1: Use standard pipeline
             amlJobExecutionScript: ./mlops/nyc-taxi/pipeline.yml
+          # Option 2: Use Component based pipeline
+          # amlJobExecutionScript: ./mlops/nyc-taxi/pipeline_components.yml 
             amlJobSetCommand: "--set experiment_name=$(EXPERIMENT_NAME) \
                                 settings.default_compute=azureml:$(CLUSTER_NAME) \
                                 jobs.prep_job.environment=azureml:$(ENVIRONMENT_NAME)@latest \

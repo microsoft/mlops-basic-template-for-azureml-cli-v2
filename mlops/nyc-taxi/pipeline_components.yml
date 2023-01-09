@@ -1,0 +1,60 @@
+$schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
+type: pipeline
+
+description: Train model with nyc taxi data
+
+display_name: nyc-taxi-pipeline-components-example
+experiment_name: nyc-taxi-pipeline-components-example
+
+settings:
+  default_compute: azureml:cpu-cluster
+
+jobs:
+  prep_job:
+    type: command
+    component: ./components/prep_component.yml
+    inputs:
+      raw_data: 
+          type: uri_folder 
+          path: ./data
+    outputs:
+      prep_data: 
+        mode: upload
+
+  transform_job:
+    type: command
+    component: ./components/transform_component.yml
+    inputs: 
+      clean_data: ${{parent.jobs.prep_job.outputs.prep_data}}
+    outputs:
+      transformed_data:
+        mode: upload
+  
+  train_job:
+    type: command
+    component: ./components/train_component.yml
+    inputs:
+      training_data: ${{parent.jobs.transform_job.outputs.transformed_data}}
+    outputs:
+      model_output: 
+      test_data: 
+        mode: upload
+  
+  predict_job:
+    type: command
+    component: ./components/predict_component.yml
+    inputs:
+      model_input: ${{parent.jobs.train_job.outputs.model_output}}
+      test_data: ${{parent.jobs.train_job.outputs.test_data}}
+    outputs:
+      predictions: 
+
+  
+  score_job:
+    type: command
+    component: ./components/score_component.yml
+    inputs:
+      predictions: ${{parent.jobs.predict_job.outputs.predictions}}
+      model: ${{parent.jobs.train_job.outputs.model_output}}
+    outputs:
+      score_report: 

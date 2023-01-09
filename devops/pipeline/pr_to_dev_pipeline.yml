@@ -48,6 +48,8 @@ stages:
         - template: templates/execute_and_wait_job.yml
           parameters:
             amlJobExecutionScript: ./mlops/nyc-taxi/pipeline.yml
+          # Uncomment below to run component based pipeline instead 
+          # amlJobExecutionScript: ./mlops/nyc-taxi/pipeline_components.yml 
             amlJobSetCommand: "--set experiment_name=$(EXPERIMENT_NAME) \
                                 settings.default_compute=azureml:$(CLUSTER_NAME) \
                                 jobs.prep_job.environment=azureml:$(ENVIRONMENT_NAME)@latest \
