@@ -1,0 +1,23 @@
+$schema: https://azuremlschemas.azureedge.net/latest/commandComponent.schema.json
+
+name: transform_component
+display_name: Data Transformation
+version: 1
+
+type: command
+
+inputs:
+  clean_data: 
+    type: uri_folder 
+outputs:
+  transformed_data:
+    type: uri_folder
+
+environment: azureml:AzureML-sklearn-1.0-ubuntu20.04-py38-cpu@latest
+
+code: ./../../../
+
+command: >-
+  python -m src.nyc_src.transform.transform
+  --clean_data ${{inputs.clean_data}} 
+  --transformed_data ${{outputs.transformed_data}}
