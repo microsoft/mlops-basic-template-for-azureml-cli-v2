@@ -16,6 +16,7 @@ In order to setup the repository, you need to complete few steps.
 - RESOURCE_GROUP: a resource group where Azure Ml Workspace is located.
 - CLUSTER_NAME: an Azure ML compute cluster name to start jobs.
 - CLUSTER_SIZE: a size of the cluster in Azure ML to start jobs.
+- CLUSTER_REGION: a location/region where the cluster should be created.
 
 Information about variable groups in Azure DevOps can be found in [this document](https://learn.microsoft.com/en-us/azure/devops/pipelines/library/variable-groups?view=azure-devops&tabs=classic).
 
@@ -33,7 +34,7 @@ More details about how to create a policy can be found [here](https://learn.micr
 
 Azure ML provides a solution that allows us to implement a *server* task in Azure DevOps Build and wait for the result of the pipeline training job with no Azure DevOps agent holding. Thanks to that it's possible to wait for results any amount of time and execute all other steps right after completion of the Azure ML training job. As for now, the feature is in active development, but you can [visit this link](https://github.com/Azure/azure-mlops-automation) to check the status and find how to get access. This new Azure ML feature can be included in your CI Build thanks to the extension that Azure ML team built or you can use RestAPITask for a direct REST call. In this template we implemented both options, and you can pick any.
 
-To activate option 1, you need to uncomment it in `ci_dev_pipeline.yml`, and you need to setup a new Azure Resource Manager service connection in AzureML scope and add its name into the variable group as **ML_SCOPE_SVC_CONNECTION**.
+To activate option 1, you need to uncomment it in `ci_dev_pipeline.yml`.
 
 To activate option 2, you need to uncomment it in `ci_dev_pipeline.yml`, and you need to setup a new **Generic** service connection with **Server URL** parameter in the following format `https://{azure ml workspace location}.experiments.azureml.net/webhook/v1.0/` and add its name into the variable group as **AML_REST_CONNECTION**.
 
