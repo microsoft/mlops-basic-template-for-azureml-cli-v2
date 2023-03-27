@@ -58,7 +58,7 @@ For more information about components, please see the official docs [here](https
 
 The pipeline require the install of the [cobertura plugin](https://plugins.jenkins.io/cobertura/) in your jenkins instance. 
 
-We recommend the usage of the [multibranch plugin](https://plugins.jenkins.io/github-branch-source/) for jenkins. In case your repository is protected by MFA, a GitHub application will be needed to communicate between Jenkins and the plugin, this can be done using this [documentation](https://github.com/jenkinsci/github-branch-source-plugin/blob/master/docs/github-app.adoc).
+We recommend the usage of the [multibranch plugin](https://plugins.jenkins.io/github-branch-source/) for jenkins. In case your repository is protected by MFA, a GitHub application will be needed to communicate between Jenkins and GitHub, this can be done using this [documentation](https://github.com/jenkinsci/github-branch-source-plugin/blob/master/docs/github-app.adoc).
 
 The Jenkins pipeline is coded in the pipeline.groovy file at the root. All the pipeline steps are built as [Jenkins shared libraries](https://www.jenkins.io/doc/book/pipeline/shared-libraries/) that can be reused easily in larger pipelines. 
 
