@@ -76,7 +76,7 @@ In order to configure the plugin, create a new multibranch pipeline (new item ->
 * In order for the pipeline to be able to use the shared librairies. Click on "add" in the 'pipeline library' section with following settings:
     * Name: shared-library
     * Project repository: Url of your github forked repo (in a git clone format)
-    * Library Path: 'Jenkins/shared-library/'
+    * Library Path: 'jenkins/shared-library/'
 
 ### Setting up the environment
 
