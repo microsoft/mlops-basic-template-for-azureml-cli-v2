@@ -52,28 +52,29 @@ For more information about components, please see the official docs [here](https
 
 ## Using Jenkins
 
+All the jenkins dependencies are hosted in the [jenkins folder](../jenkins/). 
+The Jenkins pipeline is coded in the [pipeline.groovy](../jenkins/pipeline.groovy) file. 
+
+All the pipeline steps are built as [Jenkins shared libraries](https://www.jenkins.io/doc/book/pipeline/shared-libraries/) in order to foster reuse. In case multiple pipelines are in scope we recommend splitting the shared libraries in another git repository and reference them from the different pipelines to avoid code duplication.
+
+The current guide is tailored toward Github, but the approach here below can also be used using other source control and changing the Jenkins plugin (e.g. [Gitlab](https://plugins.jenkins.io/gitlab-branch-source/), [Bitbucket](https://plugins.jenkins.io/cloudbees-bitbucket-branch-source/))
+
 > At the time being the Jenkins pipeline don't support waiting for a long AzureML training job (as the Azure DevOps pipeline) and any merge to the main branch won't be waited when ran against the full dataset.
 
 ### Required Jenkins plugins
 
-The pipeline require the install of the [cobertura plugin](https://plugins.jenkins.io/cobertura/) in your jenkins instance. 
+The pipeline require the install of the [cobertura plugin](https://plugins.jenkins.io/cobertura/) in your Jenkins instance. 
 
-We recommend the usage of the [multibranch plugin](https://plugins.jenkins.io/github-branch-source/) for jenkins. In case your repository is protected by MFA, a GitHub application will be needed to communicate between Jenkins and GitHub, this can be done using this [documentation](https://github.com/jenkinsci/github-branch-source-plugin/blob/master/docs/github-app.adoc).
-
-The Jenkins pipeline is coded in the pipeline.groovy file at the root. All the pipeline steps are built as [Jenkins shared libraries](https://www.jenkins.io/doc/book/pipeline/shared-libraries/) that can be reused easily in larger pipelines. 
-
-## Set up
-
-All the jenkins dependencies are hosted in the [jenkins folder](../jenkins/). PLease make sure the [prerequisites](#required-jenkins-plugins) are completed before proceeding.
+We recommend the usage of the [multibranch plugin](https://plugins.jenkins.io/github-branch-source/) for jenkins. In case you are using GitHub with MFA protection, a GitHub application will be needed to communicate between Jenkins and GitHub, this can be done using this [documentation](https://github.com/jenkinsci/github-branch-source-plugin/blob/master/docs/github-app.adoc).
 
 ### Setting up the Jenkins repository
 
-In order to configure the plugin, create a new multibranch pipeline (new item -> multibranch pipeline). Follow the standard plug in documentation, with the following particular settings:
+In order to configure the plugin, create a new multibranch pipeline (new item -> multibranch pipeline). Follow the [Github Branch Source plugin documentation](https://docs.cloudbees.com/docs/cloudbees-ci/latest/cloud-admin-guide/github-branch-source-plugin), with the following particular settings:
 
 * in 'Build configuration':
     * Mode: 'By JenkinsFile'
-    * Script path: 'Jenkins/pipeline.groovy'
-* In order for the pipeline to be able to use the shared librairies. Click on "add" in the 'pipeline library' section with following settings:
+    * Script path: 'jenkins/pipeline.groovy'
+* In order for the pipeline to be able to use the shared libraries. Click on "add" in the 'pipeline library' section with following settings:
     * Name: shared-library
     * Project repository: Url of your github forked repo (in a git clone format)
     * Library Path: 'jenkins/shared-library/'
@@ -91,6 +92,8 @@ MODEL_NAME=<name of the Azure Machine Learning model>
 CLUSTER_NAME=<the Azure Machine Learning cluster name where the training is going to be performed>
 ENVIRONMENT_NAME=<name of the Azure Machine environment that will be generated>
 ```
+
+> In case the shared libraries are published as part of an external repository we still expect the environment files to stay in the repositories where the main code is hosted (and not in the shared library location).
 
 ### Running the pipelines
 
