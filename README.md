@@ -16,6 +16,7 @@ The template contains the following folders/files:
 - mlops: scripts that are related to Azure ML.
 - mlops/nyc-taxi: a fake pipeline with some basic code.
 - .amlignore: using this file we are removing all the folders and files that are not supposed to be in Azure ML compute.
+- test: unit tests
 
 The template contains the following documents:
 
