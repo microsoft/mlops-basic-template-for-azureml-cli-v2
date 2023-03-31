@@ -9,3 +9,4 @@ dependencies:
       - scikit-learn
       - mlflow
       - azureml-mlflow
+      - azureml-inference-server-http

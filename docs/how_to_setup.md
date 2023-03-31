@@ -61,6 +61,10 @@ The current guide is tailored toward Github, but the approach here below can als
 
 > At the time being the Jenkins pipeline don't support waiting for a long AzureML training job (as the Azure DevOps pipeline) and any merge to the main branch won't be waited when ran against the full dataset.
 
+In addition to Azure DevOps, Jenkins also support registering models and deploying them to online endpoints (managed or on Kubernetes). This additional behavior is coded at the moment in [another pipeline](../jenkins/deployModel.groovy), as we don't have a solution to wait for the AML training at the time being. 
+
+> When using Kubernetes endpoint target, following this [tutorial](https://learn.microsoft.com/azure/machine-learning/how-to-attach-kubernetes-anywhere) is required for the pipeline to work. The current example expects the Kubernetes to be added to Azure Machine Learning with the name 'kubernetes-compute'
+
 ### Required Jenkins plugins
 
 The pipeline require the install of the [cobertura plugin](https://plugins.jenkins.io/cobertura/) in your Jenkins instance. 
@@ -79,6 +83,8 @@ In order to configure the plugin, create a new multibranch pipeline (new item ->
     * Project repository: Url of your github forked repo (in a git clone format)
     * Library Path: 'jenkins/shared-library/'
 
+To set up the inference deployment pipeline repeat the steps described here above and replace Script path by 'jenkins/deployModel.groovy'.
+
 ### Setting up the environment
 
 The pipeline expects target environments to be populated in a file named <env_name>.env located in the [environment folder](../jenkins/environments). The file is structured as follow:
@@ -93,12 +99,41 @@ CLUSTER_NAME=<the Azure Machine Learning cluster name where the training is goin
 ENVIRONMENT_NAME=<name of the Azure Machine environment that will be generated>
 ```
 
+Some additional parameters are required to enable the Inference deployment
+
+``` .env
+ENDPOINT_NAME=<OPTIONAL, deploy the inference to an online inference endpoint>
+KUBERNETES_ENDPOINT_NAME=<OPTIONAL, deploy the inference to an inference endpoint to an attached Kubernetes cluster>
+```
+
 > In case the shared libraries are published as part of an external repository we still expect the environment files to stay in the repositories where the main code is hosted (and not in the shared library location).
 
 ### Running the pipelines
 
-The pipeline can now be run, It will automatically execute on PRs and on pushes on any repo branch. You can change the behavior by tailoring the Jenkins Source branch plugin.
+The pipeline defined [above](#setting-up-the-jenkins-repository) can now be run, It will automatically execute on PRs and on pushes on any repo branch. You can change the behavior by tailoring the Jenkins Source branch plugin. It is also possible to manually execute each pipeline with the following parameters:
 
-The pipeline takes two argument when run manually:
+#### Training pipeline
+
+The pipeline takes the following arguments when run manually:
 * ENVIRONMENT: Describing which environment file will be loaded for this particular Jenkins run
 * WAIT_FOR_TRAINING: Describing if the pipeline should wait until the training job is finished.
+* DEPLOY_INFRASTRUCTURE: Boolean to indicate whether the pipeline should create the AzureML training infrastructure. Our recommendation would be to create and manage it via an external IaC script (e.g. terraform).
+* CREATE_NEW_ENVIRONMENT: Boolean to indicate whether to build a new environment on every run. It should not be required unless library or version changed.
+
+#### Inference pipeline
+
+The pipeline takes the following arguments:
+* ENVIRONMENT: Describing which environment file will be loaded for this particular Jenkins run
+* AZURE_ML_PIPELINE_NAME: The AzureML Pipeline run which trained the model we want to register and deploy
+
+### Test the online endpoints
+
+In order to test the deployed online endpoint, it is possible to [test the endpoints using the AML studio](https://learn.microsoft.com/en-us/azure/machine-learning/how-to-use-managed-online-endpoint-studio#test). In order to get a prediction here is a payload you can use:
+
+``` json
+{"data":[[0.83,40.69454575,-73.97611237,1,40.69383621,-73.97611237,0,2,2,3,1,21,2,35,2,3,1,21,5,52]]}
+```
+
+The number meanings are in the following order:
+
+distance, dropoff_latitude, dropoff_longitude, passengers, pickup_latitude,  pickup_longitude, store_forward, vendor, pickup_weekday, pickup_month, pickup_monthday, pickup_hour, pickup_minute, pickup_second, dropoff_weekday, dropoff_month, dropoff_monthday, dropoff_hour, dropoff_minute, dropoff_second
