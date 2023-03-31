@@ -1,6 +1,8 @@
 # How to setup the repo
 
-This template supports Azure ML as a platform for ML, and Azure DevOps as a platform for operationalization. Therefore, we assume that you already have an Azure ML Workspace as well as an Azure DevOps project in place, and all the code from the repository has been cloned into the DevOps project.
+This template supports Azure ML as a platform for ML, and Azure DevOps or Jenkins as a platform for operationalization. Therefore, we assume that you already have an Azure ML Workspace as well as an Azure DevOps project in place, and all the code from the repository has been cloned into the DevOps project.
+
+## Using Azure DevOps
 
 In order to setup the repository, you need to complete few steps.
 
@@ -47,3 +49,56 @@ To review these components, explore the `mlops\nyc-taxi\components` folder, and 
 If you want to test out the component based pipeline, simply comment out the reference to `mlops\nyc-taxi\pipeline.yml` in the `ci_dev_pipeline.yml` and `pr_to_def_pipeline.yml` and replace it with `mlops\nyc-taxi\pipeline_components.yml`, then re-run your Azure Pipelines.
 
 For more information about components, please see the official docs [here](https://learn.microsoft.com/en-us/azure/machine-learning/concept-component).
+
+## Using Jenkins
+
+All the jenkins dependencies are hosted in the [jenkins folder](../jenkins/). 
+The Jenkins pipeline is coded in the [pipeline.groovy](../jenkins/pipeline.groovy) file. 
+
+All the pipeline steps are built as [Jenkins shared libraries](https://www.jenkins.io/doc/book/pipeline/shared-libraries/) in order to foster reuse. In case multiple pipelines are in scope we recommend splitting the shared libraries in another git repository and reference them from the different pipelines to avoid code duplication.
+
+The current guide is tailored toward Github, but the approach here below can also be used using other source control and changing the Jenkins plugin (e.g. [Gitlab](https://plugins.jenkins.io/gitlab-branch-source/), [Bitbucket](https://plugins.jenkins.io/cloudbees-bitbucket-branch-source/))
+
+> At the time being the Jenkins pipeline don't support waiting for a long AzureML training job (as the Azure DevOps pipeline) and any merge to the main branch won't be waited when ran against the full dataset.
+
+### Required Jenkins plugins
+
+The pipeline require the install of the [cobertura plugin](https://plugins.jenkins.io/cobertura/) in your Jenkins instance. 
+
+We recommend the usage of the [multibranch plugin](https://plugins.jenkins.io/github-branch-source/) for jenkins. In case you are using GitHub with MFA protection, a GitHub application will be needed to communicate between Jenkins and GitHub, this can be done using this [documentation](https://github.com/jenkinsci/github-branch-source-plugin/blob/master/docs/github-app.adoc).
+
+### Setting up the Jenkins repository
+
+In order to configure the plugin, create a new multibranch pipeline (new item -> multibranch pipeline). Follow the [Github Branch Source plugin documentation](https://docs.cloudbees.com/docs/cloudbees-ci/latest/cloud-admin-guide/github-branch-source-plugin), with the following particular settings:
+
+* in 'Build configuration':
+    * Mode: 'By JenkinsFile'
+    * Script path: 'jenkins/pipeline.groovy'
+* In order for the pipeline to be able to use the shared libraries. Click on "add" in the 'pipeline library' section with following settings:
+    * Name: shared-library
+    * Project repository: Url of your github forked repo (in a git clone format)
+    * Library Path: 'jenkins/shared-library/'
+
+### Setting up the environment
+
+The pipeline expects target environments to be populated in a file named <env_name>.env located in the [environment folder](../jenkins/environments). The file is structured as follow:
+
+``` .env
+RESOURCE_GROUP=<name of your Azure Machine learning workspace's resource group>
+WORKSPACE_NAME=<name of your Azure Machine learning workspace>
+EXPERIMENT_NAME=<name of an experiment>
+DISPLAY_NAME=<display name for the Azure Machine learning job that will be triggered>
+MODEL_NAME=<name of the Azure Machine Learning model>
+CLUSTER_NAME=<the Azure Machine Learning cluster name where the training is going to be performed>
+ENVIRONMENT_NAME=<name of the Azure Machine environment that will be generated>
+```
+
+> In case the shared libraries are published as part of an external repository we still expect the environment files to stay in the repositories where the main code is hosted (and not in the shared library location).
+
+### Running the pipelines
+
+The pipeline can now be run, It will automatically execute on PRs and on pushes on any repo branch. You can change the behavior by tailoring the Jenkins Source branch plugin.
+
+The pipeline takes two argument when run manually:
+* ENVIRONMENT: Describing which environment file will be loaded for this particular Jenkins run
+* WAIT_FOR_TRAINING: Describing if the pipeline should wait until the training job is finished.

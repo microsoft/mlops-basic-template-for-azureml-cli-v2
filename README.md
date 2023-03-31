@@ -6,11 +6,12 @@
 
 ## About this repo
 
-The idea of this template is to provide a minimum number of scripts to implement development environment to train new models using Azure ML CLI v2 and Azure DevOps.
+The idea of this template is to provide a minimum number of scripts to implement development environment to train new models using Azure ML CLI v2 and the CI CD pipeline tool of your choice: Azure Devops or Jenkins.
 
 The template contains the following folders/files:
 
 - devops: the folder contains Azure DevOps related files (yaml files to define Builds).
+- jenkins: the folder contains Jenkins related files.
 - docs: documentation.
 - src: source code that is not related to Azure ML directly. Usually, there is data science related code.
 - mlops: scripts that are related to Azure ML.
