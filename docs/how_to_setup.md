@@ -65,6 +65,14 @@ Jenkins supports registering models and deploying them to online endpoints (mana
 
 > When using a Kubernetes endpoint target, following this [tutorial](https://learn.microsoft.com/azure/machine-learning/how-to-attach-kubernetes-anywhere) is required for the pipeline to work. The current example expects the Kubernetes to be added to Azure Machine Learning with the name 'kubernetes-compute'
 
+### Prerequisite
+
+The Jenkins pipeline expects an [Azure Service principal](https://learn.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal) to be created with the role 'Contributor' on your AzureML workspace. We expect then the following [credentials](https://www.jenkins.io/doc/book/using/using-credentials/) to be provisioned in Jenkins:
+
+* sp-app-id to your service principal application id
+* sp-tenant-id to your service principal tenant id
+* sp-password to your [service principal password](https://learn.microsoft.com/azure/active-directory/develop/howto-create-service-principal-portal#option-2-create-a-new-application-secret)
+
 ### Required Jenkins plugins
 
 The pipeline require the install of the [cobertura plugin](https://plugins.jenkins.io/cobertura/) in your Jenkins instance. 
