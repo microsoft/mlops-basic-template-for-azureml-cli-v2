@@ -1,4 +1,4 @@
-library 'shared-library@feature/register-model'
+library 'shared-library'
 pipeline {
     agent any
 
@@ -19,7 +19,7 @@ pipeline {
             agent {
                 docker {
                     image 'python:3.8'
-                    args "--user root --privileged --env-file $JENKINS_HOME/workspace/ci_dev_pipeline/jenkins/environment/${params.ENVIRONMENT}.env"
+                    args "--user root --env-file $JENKINS_HOME/workspace/ci_dev_pipeline/jenkins/environment/${params.ENVIRONMENT}.env"
                 }
             }
             steps {
@@ -76,7 +76,7 @@ pipeline {
                     when { expression { return params.CREATE_NEW_ENVIRONMENT } }
                     steps {
                         script {
-                            createEnvironment('$ENVIRONMENT_NAME', './mlops/nyc-taxi/environment.yml')
+                            createEnvironment('$ENVIRONMENT_NAME', '$ENVIRONMENT_FILE_PATH')
                         }
                     }
                 }

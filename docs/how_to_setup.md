@@ -28,7 +28,7 @@ Information about variable groups in Azure DevOps can be found in [this document
 
 More details about how to create a basic Azure Pipeline can be found [here](https://learn.microsoft.com/en-us/azure/devops/pipelines/create-first-pipeline?view=azure-devops&tabs).
 
-**Step 5.** Setup a policy for the *development* branch. At this stage we have an Azure Pipeline that should be executed on every PR to the *development* branch. At the same time successful completion of the build is not a requirement. So, it's important to add our PR build as a policy. Pay special attention that pr_to_dev_pipeline.yml](../devops/pipeline/pr_to_dev_pipeline.yml) has various paths in place. We are using these paths to limit number of runs if the current PR doesn't affect ML component (for example, PR modifies a documentation file). Therefore, setting up the policy you need to make sure that you are using the same set of paths in the *Path filter* field.
+**Step 5.** Setup a policy for the *development* branch. At this stage we have an Azure Pipeline that should be executed on every PR to the *development* branch. At the same time successful completion of the build is not a requirement. So, it's important to add our PR build as a policy. Pay special attention that [pr_to_dev_pipeline.yml](../devops/pipeline/pr_to_dev_pipeline.yml) has various paths in place. We are using these paths to limit number of runs if the current PR doesn't affect ML component (for example, PR modifies a documentation file). Therefore, setting up the policy you need to make sure that you are using the same set of paths in the *Path filter* field.
 
 More details about how to create a policy can be found [here](https://learn.microsoft.com/en-us/azure/devops/repos/git/branch-policies?view=azure-devops&tabs=browser).
 
@@ -119,6 +119,8 @@ The pipeline takes the following arguments when run manually:
 * WAIT_FOR_TRAINING: Describing if the pipeline should wait until the training job is finished.
 * DEPLOY_INFRASTRUCTURE: Boolean to indicate whether the pipeline should create the AzureML training infrastructure. Our recommendation would be to create and manage it via an external IaC script (e.g. terraform).
 * CREATE_NEW_ENVIRONMENT: Boolean to indicate whether to build a new environment on every run. It should not be required unless library or version changed.
+
+> We recommend to create environments outside of the Jenkins pipeline in a dedicated infrastructure as code, using for example, [Terraform](https://www.terraform.io/) or [Bicep](https://learn.microsoft.com/azure/azure-resource-manager/bicep/overview?tabs=bicep). 
 
 #### Inference pipeline
 

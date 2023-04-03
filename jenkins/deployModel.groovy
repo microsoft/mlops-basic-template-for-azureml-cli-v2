@@ -1,4 +1,4 @@
-library 'shared-library@feature/register-model'
+library 'shared-library'
 pipeline {
     agent any
 
@@ -17,7 +17,7 @@ pipeline {
             agent {
                 docker {
                     image 'mcr.microsoft.com/azure-cli:latest'
-                    args "--user root --privileged --env-file $WORKSPACE/jenkins/environment/${params.ENVIRONMENT}.env"
+                    args "--user root --env-file $WORKSPACE/jenkins/environment/${params.ENVIRONMENT}.env"
                 }
             }
 
@@ -46,11 +46,12 @@ pipeline {
                     }
                 }
                 stage('Deploy to online endpoint') {
-                    when {  expression {
+                    when {
+                        expression {
                             def containerName = sh(script: 'echo $ENDPOINT_NAME', returnStdout: true)
                             return containerName.trim() != ''
+                        }
                     }
-                }
                     steps {
                         script {
                             deployToOnlineEndpoint('$ENDPOINT_NAME', "${env.MODEL_PATH}", "${ENVIRONMENT}-CI-${BUILD_NUMBER}", 'managed')
@@ -58,18 +59,19 @@ pipeline {
                     }
                 }
                 stage('Deploy to Kubernetes Compute') {
-                    when {  expression {
+                    when {
+                        expression {
                             def containerName = sh(script: 'echo $KUBERNETES_ENDPOINT_NAME', returnStdout: true)
                             return containerName.trim() != ''
+                        }
                     }
-                }
                     steps {
                         script {
                             deployToOnlineEndpoint('$KUBERNETES_ENDPOINT_NAME', "${env.MODEL_PATH}", "${ENVIRONMENT}-CI-${BUILD_NUMBER}", 'kubernetes')
                         }
                     }
+                }
+            }
         }
     }
-}
-}
 }
