@@ -41,7 +41,7 @@ pipeline {
                 stage('Register Model') {
                     steps {
                         script {
-                            env.MODEL_PATH = registerModel("${params.AZURE_ML_PIPELINE_NAME}", '$MODEL_NAME')
+                            env.MODEL_PATH = registerModel("${params.AZURE_ML_PIPELINE_NAME}", '$MODEL_NAME', '$JOB_DISPLAY_NAME')
                         }
                     }
                 }
