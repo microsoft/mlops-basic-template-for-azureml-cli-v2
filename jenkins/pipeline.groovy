@@ -19,7 +19,7 @@ pipeline {
             agent {
                 docker {
                     image 'python:3.8'
-                    args "--user root --env-file $JENKINS_HOME/workspace/ci_dev_pipeline/jenkins/environment/${params.ENVIRONMENT}.env"
+                    args "--user root --env-file $WORKSPACE/jenkins/environment/${params.ENVIRONMENT}.env"
                 }
             }
             steps {
