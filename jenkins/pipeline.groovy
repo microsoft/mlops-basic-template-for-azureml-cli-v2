@@ -76,7 +76,7 @@ pipeline {
                     when { expression { return params.CREATE_NEW_ENVIRONMENT } }
                     steps {
                         script {
-                            createEnvironment('$ENVIRONMENT_NAME', '$ENVIRONMENT_FILE_PATH')
+                            createEnvironment('$ENVIRONMENT_NAME', '$AZUREML_ARTIFACT_LOCATION')
                         }
                     }
                 }

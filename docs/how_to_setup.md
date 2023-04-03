@@ -105,6 +105,9 @@ DISPLAY_NAME=<display name for the Azure Machine learning job that will be trigg
 MODEL_NAME=<name of the Azure Machine Learning model>
 CLUSTER_NAME=<the Azure Machine Learning cluster name where the training is going to be performed>
 ENVIRONMENT_NAME=<name of the Azure Machine environment that will be generated>
+JOB_DISPLAY_NAME=train_job
+AZUREML_ARTIFACT_LOCATION=mlops/nyc-taxi
+INFERENCE_CODE_LOCATION=src/nyc_src/inference/
 ```
 
 Some additional parameters are required to enable the inference deployment

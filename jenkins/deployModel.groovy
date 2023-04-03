@@ -54,7 +54,7 @@ pipeline {
                     }
                     steps {
                         script {
-                            deployToOnlineEndpoint('$ENDPOINT_NAME', "${env.MODEL_PATH}", "${ENVIRONMENT}-CI-${BUILD_NUMBER}", 'managed')
+                            deployToOnlineEndpoint('$RESOURCE_GROUP', '$WORKSPACE_NAME', '$ENDPOINT_NAME', "${env.MODEL_PATH}", "${ENVIRONMENT}-CI-${BUILD_NUMBER}", 'managed', '$AZUREML_ARTIFACT_LOCATION', '$INFERENCE_CODE_LOCATION')
                         }
                     }
                 }
@@ -67,7 +67,7 @@ pipeline {
                     }
                     steps {
                         script {
-                            deployToOnlineEndpoint('$KUBERNETES_ENDPOINT_NAME', "${env.MODEL_PATH}", "${ENVIRONMENT}-CI-${BUILD_NUMBER}", 'kubernetes')
+                            deployToOnlineEndpoint('$RESOURCE_GROUP', '$WORKSPACE_NAME', '$KUBERNETES_ENDPOINT_NAME', "${env.MODEL_PATH}", "${ENVIRONMENT}-CI-${BUILD_NUMBER}", 'kubernetes', '$AZUREML_ARTIFACT_LOCATION', '$INFERENCE_CODE_LOCATION')
                         }
                     }
                 }
