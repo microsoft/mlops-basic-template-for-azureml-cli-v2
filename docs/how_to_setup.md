@@ -61,9 +61,9 @@ The current guide is tailored toward Github, but the approach here below can als
 
 > At the time being the Jenkins pipeline don't support waiting for a long AzureML training job (as the Azure DevOps pipeline) and any merge to the main branch won't be waited when ran against the full dataset.
 
-In addition to Azure DevOps, Jenkins also support registering models and deploying them to online endpoints (managed or on Kubernetes). This additional behavior is coded at the moment in [another pipeline](../jenkins/deployModel.groovy), as we don't have a solution to wait for the AML training at the time being. 
+Jenkins supports registering models and deploying them to online endpoints (managed or on Kubernetes). This additional behavior is coded at the moment in [another pipeline](../jenkins/deployModel.groovy), as we don't have a solution to wait for the AML training to be finished for now. 
 
-> When using Kubernetes endpoint target, following this [tutorial](https://learn.microsoft.com/azure/machine-learning/how-to-attach-kubernetes-anywhere) is required for the pipeline to work. The current example expects the Kubernetes to be added to Azure Machine Learning with the name 'kubernetes-compute'
+> When using a Kubernetes endpoint target, following this [tutorial](https://learn.microsoft.com/azure/machine-learning/how-to-attach-kubernetes-anywhere) is required for the pipeline to work. The current example expects the Kubernetes to be added to Azure Machine Learning with the name 'kubernetes-compute'
 
 ### Required Jenkins plugins
 
@@ -99,7 +99,7 @@ CLUSTER_NAME=<the Azure Machine Learning cluster name where the training is goin
 ENVIRONMENT_NAME=<name of the Azure Machine environment that will be generated>
 ```
 
-Some additional parameters are required to enable the Inference deployment
+Some additional parameters are required to enable the inference deployment
 
 ``` .env
 ENDPOINT_NAME=<OPTIONAL, deploy the inference to an online inference endpoint>
