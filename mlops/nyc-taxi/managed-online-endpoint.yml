@@ -1,0 +1,13 @@
+$schema: https://azuremlschemas.azureedge.net/latest/managedOnlineDeployment.schema.json
+name: online-endpoint
+endpoint_name: $endpointName
+model:
+  path: $modelPath
+code_configuration:
+  code: src/nyc_src/inference/
+  scoring_script: score.py
+environment:
+  conda_file: mlops/nyc-taxi/conda-inference.yml
+  image: mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04:latest
+instance_type: Standard_DS3_v2
+instance_count: 1

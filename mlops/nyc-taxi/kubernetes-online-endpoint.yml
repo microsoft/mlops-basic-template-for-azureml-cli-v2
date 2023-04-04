@@ -1,0 +1,15 @@
+$schema: https://azuremlschemas.azureedge.net/latest/kubernetesOnlineDeployment.schema.json
+name: kubernetes-online-endpoint
+endpoint_name: $endpointName
+app_insights_enabled: true
+model:
+  path: $modelPath
+code_configuration:
+  code: src/nyc_src/inference/
+  scoring_script: score.py
+environment:
+  conda_file: mlops/nyc-taxi/conda-inference.yml
+  image: mcr.microsoft.com/azureml/openmpi4.1.0-ubuntu20.04:latest
+instance_type: defaultinstancetype
+instance_count: 1
+type: kubernetes

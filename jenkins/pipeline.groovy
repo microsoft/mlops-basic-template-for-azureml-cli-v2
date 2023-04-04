@@ -5,6 +5,8 @@ pipeline {
     parameters {
         string(name: 'ENVIRONMENT', defaultValue: 'demo', description: 'Environment name. Will be used to resolve the config file.')
         booleanParam(name: 'WAIT_FOR_TRAINING', defaultValue: false, description: 'If the pipeline should wait for the end of the training. And check the status.')
+        booleanParam(name: 'DEPLOY_INFRASTRUCTURE', defaultValue: true, description: 'Whether to deploy the required AzureML compute infrastructure')
+        booleanParam(name: 'CREATE_NEW_ENVIRONMENT', defaultValue: true, description: 'Deploy the required AzureML compute infrastructure')
     }
 
     environment {
@@ -17,7 +19,7 @@ pipeline {
             agent {
                 docker {
                     image 'python:3.8'
-                    args "--user root --privileged --env-file $JENKINS_HOME/workspace/ci_dev_pipeline/jenkins/environment/${params.ENVIRONMENT}.env"
+                    args "--user root --env-file $WORKSPACE/jenkins/environment/${params.ENVIRONMENT}.env"
                 }
             }
             steps {
@@ -40,7 +42,7 @@ pipeline {
             agent {
                 docker {
                     image 'mcr.microsoft.com/azure-cli:latest'
-                    args "--user root --privileged --env-file $JENKINS_HOME/workspace/ci_dev_pipeline/jenkins/environment/${params.ENVIRONMENT}.env"
+                    args "--user root --privileged --env-file $WORKSPACE/jenkins/environment/${params.ENVIRONMENT}.env"
                 }
             }
 
@@ -62,6 +64,7 @@ pipeline {
                 }
 
                 stage('Create AzureML compute') {
+                    when { expression { return params.DEPLOY_INFRASTRUCTURE } }
                     steps {
                         script {
                             createCompute('$CLUSTER_NAME')
@@ -70,13 +73,14 @@ pipeline {
                 }
 
                 stage('Create AzureML environment') {
+                    when { expression { return params.CREATE_NEW_ENVIRONMENT } }
                     steps {
                         script {
-                            createEnvironment('$ENVIRONMENT_NAME', './mlops/nyc-taxi/environment.yml')
+                            createEnvironment('$ENVIRONMENT_NAME', '$AZUREML_ARTIFACT_LOCATION')
                         }
                     }
                 }
-                
+
                 stage('Execute AzureML job') {
                     steps {
                         script {
