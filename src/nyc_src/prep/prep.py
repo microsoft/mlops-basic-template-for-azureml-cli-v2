@@ -1,16 +1,10 @@
 import argparse
-from pathlib import Path
-from typing_extensions import Concatenate
-from uuid import uuid4
-from datetime import datetime
 import os
+from typing import Dict, List, Sequence
 import pandas as pd
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import train_test_split
-import pickle
 
 
-def main(raw_data, prep_data):
+def main(raw_data: str, prep_data: str):
     print("hello training world...")
 
     lines = [
@@ -22,30 +16,21 @@ def main(raw_data, prep_data):
         print(line)
 
     print("mounted_path files: ")
-    arr = os.listdir(raw_data)
-    print(arr)
-
-    df_list = []
-    for filename in arr:
-        print("reading file: %s ..." % filename)
-        with open(os.path.join(raw_data, filename), "r") as handle:
-            # print (handle.read())
-            # ('input_df_%s' % filename) = pd.read_csv((Path(training_data) / filename))
-            input_df = pd.read_csv((Path(raw_data) / filename))
-            df_list.append(input_df)
+    files = os.listdir(raw_data)
+    print(files)
 
     # Prep the green and yellow taxi data
-    green_data = df_list[0]
-    yellow_data = df_list[1]
+    df_list: List[pd.DataFrame] = []
+    for file in files:
+        if file.endswith(".csv"):
+            df_list.append(pd.read_csv(os.path.join(raw_data, file)))
 
-    data_prep(green_data, yellow_data)
+    data_prep(files, df_list, prep_data)
 
-
-def data_prep(green_data, yellow_data):
+def data_prep(filenames: Sequence[str], dataframes: Sequence[pd.DataFrame], destination_path: str):
     # Define useful columns needed for the Azure Machine Learning NYC Taxi tutorial
 
-    useful_columns = str(
-        [
+    useful_columns = [
             "cost",
             "distance",
             "dropoff_datetime",
@@ -56,31 +41,20 @@ def data_prep(green_data, yellow_data):
             "pickup_latitude",
             "pickup_longitude",
             "store_forward",
-            "vendor",
+            "vendor"
         ]
-    ).replace(",", ";")
-    print(useful_columns)
+    print(f"Useful columns: {useful_columns}")
 
     # Rename columns as per Azure Machine Learning NYC Taxi tutorial
-    green_columns = str(
-        {
+    column_renames = {
             "vendorID": "vendor",
             "lpepPickupDatetime": "pickup_datetime",
             "lpepDropoffDatetime": "dropoff_datetime",
-            "storeAndFwdFlag": "store_forward",
             "pickupLongitude": "pickup_longitude",
             "pickupLatitude": "pickup_latitude",
             "dropoffLongitude": "dropoff_longitude",
             "dropoffLatitude": "dropoff_latitude",
             "passengerCount": "passengers",
-            "fareAmount": "cost",
-            "tripDistance": "distance",
-        }
-    ).replace(",", ";")
-
-    yellow_columns = str(
-        {
-            "vendorID": "vendor",
             "tpepPickupDateTime": "pickup_datetime",
             "tpepDropoffDateTime": "dropoff_datetime",
             "storeAndFwdFlag": "store_forward",
@@ -88,53 +62,40 @@ def data_prep(green_data, yellow_data):
             "startLat": "pickup_latitude",
             "endLon": "dropoff_longitude",
             "endLat": "dropoff_latitude",
-            "passengerCount": "passengers",
             "fareAmount": "cost",
             "tripDistance": "distance",
         }
-    ).replace(",", ";")
 
-    print("green_columns: " + green_columns)
-    print("yellow_columns: " + yellow_columns)
-
-    green_data_clean = cleanseData(green_data, green_columns, useful_columns)
-    yellow_data_clean = cleanseData(yellow_data, yellow_columns, useful_columns)
+    cleaned_dataframes: List[pd.DataFrame] = []
+    for df in dataframes:
+        cleaned_dataframes.append(cleanse_data(df, column_renames, useful_columns))
 
     # Append yellow data to green data
-    combined_df = green_data_clean.append(yellow_data_clean, ignore_index=True)
+    combined_df = pd.concat(cleaned_dataframes, ignore_index=True)
     combined_df.reset_index(inplace=True, drop=True)
 
-    output_green = green_data_clean.to_csv(os.path.join(prep_data, "green_prep_data.csv"))
-    output_yellow = yellow_data_clean.to_csv(
-        os.path.join(prep_data, "yellow_prep_data.csv"))
-    merged_data = combined_df.to_csv(os.path.join(prep_data, "merged_data.csv"))
+    # Create files (each cleaned version and the final combined)
+    os.makedirs(destination_path, exist_ok=True)
+    for i, cleaned_df in enumerate(cleaned_dataframes):
+        # remove filename extension
+        name_and_extension = filenames[i].split(".", maxsplit=1)
+        cleaned_filename = name_and_extension[0] + "_cleaned.csv"
+        cleaned_df.to_csv(os.path.join(destination_path, cleaned_filename))
 
-    print("Finish")
+    combined_df.to_csv(os.path.join(destination_path, "merged_data.csv"))
 
+    print("Finished")
 
-# These functions ensure that null data is removed from the dataset,
-# which will help increase machine learning model accuracy.
+def cleanse_data(
+        data: pd.DataFrame,
+        columns_renames: Dict[str, str],
+        useful_columns: List[str]) -> pd.DataFrame:
+    """Cleanses the data by removing rows with all null values and renaming columns"""
+    new_df = data.dropna(how="all").rename(columns=columns_renames)
+    series_with_useful_columns = new_df[useful_columns]
 
-def get_dict(dict_str):
-    pairs = dict_str.strip("{}").split(";")
-    new_dict = {}
-    for pair in pairs:
-        print(pair)
-        key, value = pair.strip().split(":")
-        new_dict[key.strip().strip("'")] = value.strip().strip("'")
-    return new_dict
-
-
-def cleanseData(data, columns, useful_columns):
-    useful_columns = [
-        s.strip().strip("'") for s in useful_columns.strip("[]").split(";")
-    ]
-    new_columns = get_dict(columns)
-
-    new_df = (data.dropna(how="all").rename(columns=new_columns))[useful_columns]
-
-    new_df.reset_index(inplace=True, drop=True)
-    return new_df
+    series_with_useful_columns.reset_index(inplace=True, drop=True)
+    return series_with_useful_columns
 
 
 if __name__ == "__main__":
@@ -153,7 +114,4 @@ if __name__ == "__main__":
     )
 
     args = parser.parse_args()
-    raw_data = args.raw_data
-    prep_data = args.prep_data
-
-    main(raw_data, prep_data)
+    main(args.raw_data, args.prep_data)
