@@ -1,4 +1,5 @@
 $schema: https://azuremlschemas.azureedge.net/latest/environment.schema.json
 image: mcr.microsoft.com/azureml/openmpi3.1.2-ubuntu18.04
+name: environment_name
 conda_file: conda.yml
 description: Environment created from a Docker image plus Conda environment.

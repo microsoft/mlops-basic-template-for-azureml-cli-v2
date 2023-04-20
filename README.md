@@ -18,6 +18,7 @@ The template contains the following folders/files:
 - mlops/nyc-taxi: a fake pipeline with some basic code.
 - .amlignore: using this file we are removing all the folders and files that are not supposed to be in Azure ML compute.
 - test: unit tests
+- common: common components that can be reused by different projects. This folder should be moved in its own private repository as explained in [the pattern page]().
 
 The template contains the following documents:
 

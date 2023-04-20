@@ -150,3 +150,37 @@ In order to test the deployed online endpoint, it is possible to [test the endpo
 The number meanings are in the following order:
 
 distance, dropoff_latitude, dropoff_longitude, passengers, pickup_latitude,  pickup_longitude, store_forward, vendor, pickup_weekday, pickup_month, pickup_monthday, pickup_hour, pickup_minute, pickup_second, dropoff_weekday, dropoff_month, dropoff_monthday, dropoff_hour, dropoff_minute, dropoff_second
+
+
+## Using the makefile
+
+The makefile located in the root is an initializer, loading additional targets from a central location (located in the [common folder](../common/) for the demo purpose of this repository), more information is available on the pattern [here]().
+
+A user can initialize the makefile by running the `make init` command which will clone the central makefile with additional targets from the central repository. the makefile will use by default a file name config.env located in the project root as input, it is possible to override the input file location by setting and environment variable named `ENV_FILE` referring to the file path from the root of the directory.
+
+the configuration file is expected to have the following environment variables:
+
+``` .env
+COMPUTE_NAME=<compute name for training on AzureML>
+ENVIRONMENT_NAME=<environment name for the create-environment command>
+# The link to the ML Job yaml definition
+JOB_FILE=mlops/nyc-taxi/pipeline.yml
+TRAINING_ENVIRONMENT_FILE=mlops/nyc-taxi/environment.yml
+#The output name of your job for the download-model command
+OUTPUT_NAME=model_output
+JOB_NAME=<Job name for the download-model or the get-job command>
+TEST_PATH=<path to the test source code>
+# Azure ML Workspace settings
+RESOURCE_GROUP=<name of your Azure Machine learning workspace's resource group>
+WORKSPACE_NAME=<name of your Azure Machine learning workspace>
+WORKSPACE_DEFAULT_DATASTORE=<name of your Azure Machine default datastore>
+```
+
+The example central make targets are the following:
+
+`make train`: Submit a training job to AzureML
+`make create-environment`: Create and environment to AzureML
+`make download-model`: Download the model trained by a particular job from AzureML
+`make get-job`: Get a job from AzureML
+`make test`: Run Unit tests
+
