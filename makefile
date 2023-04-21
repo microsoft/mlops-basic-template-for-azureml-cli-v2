@@ -8,8 +8,8 @@ else
 include config.env
 endif
 
-MLOPS_REPO_URL?=https://github.com/Mandur/mlops-basic-template-for-azureml-cli-v2.git
-MLOPS_REPO_VERSION=feature/add-makefile
+MLOPS_REPO_URL?=https://github.com/microsoft/mlops-basic-template-for-azureml-cli-v2.git
+MLOPS_REPO_VERSION=main
 ##################################################################
 ## Project specific targets
 ##################################################################
